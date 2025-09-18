@@ -14,8 +14,8 @@ import { createClient } from '@supabase/supabase-js';
 // 8. Guarda el archivo y recarga la app.  
 // 9. Prueba el botón "Probar Conexión" - debería salir verde.  
 
-const supabaseUrl = 'https://tu-proyecto-real.supabase.co'; // ← REEMPLAZA con tu Project URL  
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // ← REEMPLAZA con tu anon key  
+const supabaseUrl = 'https://plarayywtxedbiotsmmd.supabase.co'; // ← REEMPLAZA con tu Project URL  
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYXJheXl3dHhlZGJpb3RzbW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMzQ0NTQsImV4cCI6MjA3MzcxMDQ1NH0.s585WUBDWj9F3O9r5c_mzUTdPGbpSFhez2FgJhyya9w...'; // ← REEMPLAZA con tu anon key  
 
 // Si no lo haces, la app no guardará nada. ¡No seas vago, ve a Supabase ahora!  
 
