@@ -97,7 +97,7 @@ const VisitForm = () => {
 
     setIsSubmitting(true);  
     setError('');  
-    
+   
    const { data, error: insertError } = await supabase
     .from('visitas_pdv')
     .insert([
