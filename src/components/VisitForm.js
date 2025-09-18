@@ -7,7 +7,8 @@ const VisitForm = () => {
   const [mdnCode, setMdnCode] = useState('');  
   const [route, setRoute] = useState('');  
   const [latitude, setLatitude] = useState(null);  
-  const [longitude, setLongitude] = useState(null);  
+  const [longitude, setLongitude] = useState(null);
+  const [accuracy, setAccuracy] = useState(null);  
   const [hasChips, setHasChips] = useState(false);  
   const [chipsCount, setChipsCount] = useState(0);  
   const [leftChips, setLeftChips] = useState(false);  
@@ -34,6 +35,7 @@ const VisitForm = () => {
         (position) => {  
           setLatitude(position.coords.latitude);  
           setLongitude(position.coords.longitude);  
+          setAccuracy(position.coords.accuracy); // 👈 NUEVO  
           setLocationError('');  
           setIsGettingLocation(false);  
         },  
@@ -63,7 +65,7 @@ const VisitForm = () => {
       () => {  
         // Ubicación ok, ahora prueba el guardado  
         supabase  
-          .from('visits')  
+          .from('visitas_pdv')  
           .select('count', { count: 'exact', head: true })  
           .then(({ data, error }) => {  
             if (error) {  
@@ -95,22 +97,23 @@ const VisitForm = () => {
 
     setIsSubmitting(true);  
     setError('');  
-
-    const { data, error: insertError } = await supabase  
-      .from('visits')  
-      .insert([  
-        {  
-          mdn_code: mdnCode.trim(),  
-          route,  
-          latitude,  
-          longitude,  
-          has_chips: hasChips,  
-          chips_count: parseInt(chipsCount) || 0,  
-          left_chips: leftChips,  
-          left_chips_count: parseInt(leftChipsCount) || 0,  
-        },  
-      ])  
-
+    
+   const { data, error: insertError } = await supabase
+    .from('visitas_pdv')
+    .insert([
+     {
+      agente_id: route,
+      pdv_id: mdnCode.trim(),
+      lat: latitude,
+      lng: longitude,
+      accuracy: accuracy, // 👈 NUEVO
+      tiene_chips: hasChips,
+      cantidad_chips: parseInt(chipsCount) || 0,
+      se_entregaron: leftChips,
+      cantidad_entregada: parseInt(leftChipsCount) || 0,
+     },
+   ]);
+    
     setIsSubmitting(false);  
 
     if (insertError) {  
