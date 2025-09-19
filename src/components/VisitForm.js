@@ -5,7 +5,7 @@ import { supabase } from '../utils/supabase';
 
 const VisitForm = () => {
   const [mdnCode, setMdnCode] = useState('');
-  const [pdvName, setPdvName] = useState(''); // 👈 nuevo estado
+  const [pdvName, setPdvName] = useState(''); // 👈 nuevo estado para nombre PDV
   const [route, setRoute] = useState('');
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -23,7 +23,7 @@ const VisitForm = () => {
 
   const routes = ['AJ01', 'AJ03', 'AJ07', 'AJ08', 'HD02', 'SJ02', 'SJ05', 'SJ16'];
 
-  // 🚀 Capturar GPS
+  // 🚀 Captura de GPS
   useEffect(() => {
     if (!navigator.geolocation) {
       setLocationError('Tu navegador no soporta GPS. Usa un celular moderno.');
@@ -164,6 +164,7 @@ const VisitForm = () => {
     >
       <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Control de Visitas</h1>
 
+      {/* Botón de prueba de conexión */}
       <motion.button
         onClick={testConnection}
         className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium mb-4 ${
@@ -208,7 +209,147 @@ const VisitForm = () => {
           </div>
         )}
 
-        {/* El resto del formulario sigue igual... */}
+        {/* Ruta */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Ruta del PDV</label>
+          <select
+            value={route}
+            onChange={(e) => setRoute(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white"
+            required
+          >
+            <option value="">Selecciona una ruta</option>
+            {routes.map((ruta) => (
+              <option key={ruta} value={ruta}>
+                {ruta}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Ubicación GPS */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Ubicación GPS</label>
+          <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-600 rounded-xl">
+            <MapPin className="w-5 h-5" />
+            {isGettingLocation
+              ? 'Capturando ubicación...'
+              : latitude && longitude
+              ? `Ubicación: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+              : 'Error en GPS'}
+          </div>
+          {locationError && (
+            <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+              <AlertCircle className="w-4 h-4" /> {locationError}
+            </p>
+          )}
+        </div>
+
+        {/* ¿El PDV tiene chips? */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-3">¿El PDV tiene chips?</label>
+          <div className="flex gap-3 justify-center">
+            <motion.button
+              type="button"
+              onClick={() => setHasChips(false)}
+              className={`px-6 py-3 rounded-xl font-medium flex-1 ${
+                !hasChips ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              No
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={() => setHasChips(true)}
+              className={`px-6 py-3 rounded-xl font-medium flex-1 ${
+                hasChips ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              Sí
+            </motion.button>
+          </div>
+
+          {hasChips && (
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2">¿Cuántos chips tiene?</label>
+              <input
+                type="number"
+                value={chipsCount}
+                onChange={(e) => setChipsCount(e.target.value)}
+                min="0"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* ¿Le dejamos chips? */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-3">¿Le dejamos chips?</label>
+          <div className="flex gap-3 justify-center">
+            <motion.button
+              type="button"
+              onClick={() => setLeftChips(false)}
+              className={`px-6 py-3 rounded-xl font-medium flex-1 ${
+                !leftChips ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              No
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={() => setLeftChips(true)}
+              className={`px-6 py-3 rounded-xl font-medium flex-1 ${
+                leftChips ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              Sí
+            </motion.button>
+          </div>
+
+          {leftChips && (
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2">¿Cuántos chips le dejamos?</label>
+              <input
+                type="number"
+                value={leftChipsCount}
+                onChange={(e) => setLeftChipsCount(e.target.value)}
+                min="0"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl"
+              />
+            </div>
+          )}
+        </div>
+
+        {error && (
+          <p className="text-red-500 text-sm flex items-center gap-1 p-3 bg-red-50 rounded-xl">
+            <AlertCircle className="w-4 h-4" /> {error}
+          </p>
+        )}
+
+        <motion.button
+          type="submit"
+          disabled={
+            isSubmitting ||
+            !mdnCode.trim() ||
+            !route ||
+            !latitude ||
+            !longitude ||
+            isGettingLocation ||
+            connectionStatus === false
+          }
+          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-xl font-semibold"
+        >
+          {isSubmitting ? (
+            <>
+              <Clock className="w-5 h-5 animate-spin" /> Guardando...
+            </>
+          ) : (
+            <>
+              <Save className="w-5 h-5" /> Guardar Visita
+            </>
+          )}
+        </motion.button>
       </form>
     </motion.div>
   );
