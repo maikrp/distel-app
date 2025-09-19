@@ -21,7 +21,13 @@ const VisitForm = () => {
   const [isGettingLocation, setIsGettingLocation] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState(null);
 
-  const routes = ['AJ01', 'AJ03', 'AJ07', 'AJ08', 'HD02', 'SJ02', 'SJ05', 'SJ16'];
+  const routes = [
+  'AJ_01', 'AJ_03', 'AJ_07', 'AJ_08',
+  'HD_02',
+  'SJ_02', 'SJ_05', 'SJ_16',
+  'RG_01', 'RG_02', 'RG_03', 'RG_06', 'RG_07', 'RG_08',
+  'ZN_01', 'ZN_05', 'ZN_06', 'ZN_07', 'ZN_08'
+];
 
   // 🚀 Captura de GPS
   useEffect(() => {
