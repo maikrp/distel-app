@@ -90,14 +90,21 @@ const VisitForm = () => {
 
   const handleSubmit = async (e) => {  
     e.preventDefault();  
+
+  // 🚨 Validación de longitud exacta del MDN
+    if (mdnCode.length !== 8) {
+       setError('El MDN debe contener exactamente 8 dígitos.');
+       return;
+    }
+
     if (!mdnCode.trim() || !route || !latitude || !longitude) {  
-      setError('¡Ey! Necesitas código del PDV, ruta, y ubicación primero.');  
-      return;  
+       setError('¡Ey! Necesitas código del PDV, ruta, y ubicación primero.');  
+       return;  
     }  
 
     setIsSubmitting(true);  
     setError('');  
-   
+  
    const { data, error: insertError } = await supabase
     .from('visitas_pdv')
     .insert([
@@ -175,18 +182,30 @@ const VisitForm = () => {
 
       <form onSubmit={handleSubmit} className="space-y-4">  
         {/* Código MDN */}  
-        <div>  
-          <label className="block text-sm font-medium text-gray-700 mb-2">Código MDN del PDV</label>  
-          <input  
-            type="text"  
-            value={mdnCode}  
-            onChange={(e) => setMdnCode(e.target.value)}  
-            placeholder="Ej: PDV123ABC"  
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"  
-            required  
-          />  
-        </div>  
-
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Código MDN del PDV</label>
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]{8}"
+            value={mdnCode}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (/^\d{0,8}$/.test(val)) {
+                setMdnCode(val);
+              }
+            }}
+            placeholder="Ej: 88889999"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+          />
+          {/* Mensaje de validación */}
+          {mdnCode && mdnCode.length !== 8 && (
+             <p className="text-red-500 text-sm mt-2">El MDN contiene 8 dígitos</p>
+           )}
+         </div>
+ 
         {/* Ruta */}  
         <div>  
           <label className="block text-sm font-medium text-gray-700 mb-2">Ruta del PDV</label>  
