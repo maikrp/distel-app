@@ -5,7 +5,7 @@ import { supabase } from '../utils/supabase';
 
 const VisitForm = () => {
   const [mdnCode, setMdnCode] = useState('');
-  const [pdvName, setPdvName] = useState(''); // 👈 nuevo estado para nombre PDV
+  const [pdvName, setPdvName] = useState(''); // nombre PDV
   const [route, setRoute] = useState('');
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -49,11 +49,11 @@ const VisitForm = () => {
   // 🚀 Consulta automática del MDN en la tabla `tae`
   useEffect(() => {
     const fetchPdvName = async () => {
-      if (mdnCode.length === 8) {
+      if (mdnCode.trim().length >= 1) {
         const { data, error } = await supabase
-          .from('tae')
+          .from('clientes')
           .select('pdv')
-          .ilike('mdn', `%${mdnCode}%`) // 👈 ya garantizado como texto de 8 dígitos
+          .eq('tae', mdnCode) // búsqueda exacta como está en la base
           .limit(1)
           .single();
 
@@ -96,12 +96,12 @@ const VisitForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (mdnCode.length !== 8) {
-      setError('El MDN debe contener exactamente 8 dígitos.');
+    if (!mdnCode.trim()) {
+      setError('El MDN no puede estar vacío.');
       return;
     }
 
-    if (!mdnCode.trim() || !route || !latitude || !longitude) {
+    if (!route || !latitude || !longitude) {
       setError('Faltan datos obligatorios.');
       return;
     }
@@ -113,7 +113,7 @@ const VisitForm = () => {
       {
         agente_id: route,
         pdv_id: mdnCode.trim(),
-        nombre_pdv: pdvName, // 👈 nuevo campo
+        nombre_pdv: pdvName,
         lat: latitude,
         lng: longitude,
         accuracy: accuracy,
@@ -186,12 +186,12 @@ const VisitForm = () => {
           <input
             type="text"
             inputMode="numeric"
-            pattern="[0-9]{8}"
+            pattern="[0-9]{1,8}" // permite de 1 a 8 dígitos
             value={mdnCode}
             onChange={(e) => {
               const val = e.target.value;
               if (/^\d{0,8}$/.test(val)) {
-                setMdnCode(val.toString()); // 👈 guardamos como texto
+                setMdnCode(val);
               }
             }}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl"
