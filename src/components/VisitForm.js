@@ -10,9 +10,9 @@ const VisitForm = () => {
   const [longitude, setLongitude] = useState(null);
   const [accuracy, setAccuracy] = useState(null);  
   const [hasChips, setHasChips] = useState(false);  
-  const [chipsCount, setChipsCount] = useState(0);  
+  const [chipsCount, setChipsCount] = useState('');  
   const [leftChips, setLeftChips] = useState(false);  
-  const [leftChipsCount, setLeftChipsCount] = useState(0);  
+  const [leftChipsCount, setLeftChipsCount] = useState('');  
   const [isSubmitting, setIsSubmitting] = useState(false);  
   const [success, setSuccess] = useState(false);  
   const [error, setError] = useState('');  
@@ -115,9 +115,9 @@ const VisitForm = () => {
       lng: longitude,
       accuracy: accuracy, // 👈 NUEVO
       tiene_chips: hasChips,
-      cantidad_chips: parseInt(chipsCount) || 0,
+      cantidad_chips: parseInt(chipsCount) || null,
       se_entregaron: leftChips,
-      cantidad_entregada: parseInt(leftChipsCount) || 0,
+      cantidad_entregada: parseInt(leftChipsCount) || null,
      },
    ]);
     
