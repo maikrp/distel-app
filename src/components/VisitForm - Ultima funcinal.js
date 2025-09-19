@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, CheckCircle2, AlertCircle, Save, Clock, RefreshCw, Map } from 'lucide-react';
+import { MapPin, CheckCircle2, AlertCircle, Save, Clock, RefreshCw } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 
 const VisitForm = () => {
   const [mdnCode, setMdnCode] = useState('');
-  const [pdvName, setPdvName] = useState('');
-  const [geo, setGeo] = useState(''); // 👈 nueva variable para coordenadas
+  const [pdvName, setPdvName] = useState(''); // nombre PDV
   const [route, setRoute] = useState('');
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -23,10 +22,12 @@ const VisitForm = () => {
   const [connectionStatus, setConnectionStatus] = useState(null);
 
   const routes = [
-    'AJ01', 'AJ03', 'AJ07', 'AJ08', 'HD02', 'SJ02', 'SJ05', 'SJ16',
-    'RG01', 'RG02', 'RG03', 'RG06', 'RG07', 'RG08',
-    'ZN01', 'ZN05', 'ZN06', 'ZN07', 'ZN08'
-  ];
+  'AJ_01', 'AJ_03', 'AJ_07', 'AJ_08',
+  'HD_02',
+  'SJ_02', 'SJ_05', 'SJ_16',
+  'RG_01', 'RG_02', 'RG_03', 'RG_06', 'RG_07', 'RG_08',
+  'ZN_01', 'ZN_05', 'ZN_06', 'ZN_07', 'ZN_08'
+];
 
   // 🚀 Captura de GPS
   useEffect(() => {
@@ -51,31 +52,28 @@ const VisitForm = () => {
     );
   }, []);
 
-  // 🚀 Consulta automática del MDN en la tabla `clientes`
+  // 🚀 Consulta automática del MDN en la tabla `tae`
   useEffect(() => {
-    const fetchPdvData = async () => {
-      if (mdnCode.length === 8) {
+    const fetchPdvName = async () => {
+      if (mdnCode.trim().length >= 1) {
         const { data, error } = await supabase
           .from('clientes')
-          .select('pdv, geo')
-          .eq('tae', mdnCode) // 👈 búsqueda exacta
+          .select('pdv')
+          .eq('tae', mdnCode) // búsqueda exacta como está en la base
           .limit(1)
           .single();
 
         if (error || !data) {
           setPdvName('No encontrado');
-          setGeo('');
         } else {
           setPdvName(data.pdv);
-          setGeo(data.geo || '');
         }
       } else {
         setPdvName('');
-        setGeo('');
       }
     };
 
-    fetchPdvData();
+    fetchPdvName();
   }, [mdnCode]);
 
   const testConnection = async () => {
@@ -104,12 +102,12 @@ const VisitForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (mdnCode.length !== 8) {
-      setError('El MDN debe contener exactamente 8 dígitos.');
+    if (!mdnCode.trim()) {
+      setError('El MDN no puede estar vacío.');
       return;
     }
 
-    if (!mdnCode.trim() || !route || !latitude || !longitude) {
+    if (!route || !latitude || !longitude) {
       setError('Faltan datos obligatorios.');
       return;
     }
@@ -140,29 +138,12 @@ const VisitForm = () => {
       setSuccess(true);
       setMdnCode('');
       setPdvName('');
-      setGeo('');
       setRoute('');
       setHasChips(false);
       setChipsCount('');
       setLeftChips(false);
       setLeftChipsCount('');
       setTimeout(() => setSuccess(false), 3000);
-    }
-  };
-
-  // 🚀 Abrir ubicación en Google Maps
-  const handleOpenMaps = () => {
-    if (geo) {
-      const coords = geo.split(',');
-      if (coords.length === 2) {
-        const lat = coords[0].trim();
-        const lng = coords[1].trim();
-        window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
-      } else {
-        alert('Coordenadas no válidas en la base de datos.');
-      }
-    } else {
-      alert('No hay coordenadas disponibles para este PDV.');
     }
   };
 
@@ -211,12 +192,12 @@ const VisitForm = () => {
           <input
             type="text"
             inputMode="numeric"
-            pattern="[0-9]{8}"
+            pattern="[0-9]{1,8}" // permite de 1 a 8 dígitos
             value={mdnCode}
             onChange={(e) => {
               const val = e.target.value;
               if (/^\d{0,8}$/.test(val)) {
-                setMdnCode(val.toString());
+                setMdnCode(val);
               }
             }}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl"
@@ -224,7 +205,7 @@ const VisitForm = () => {
           />
         </div>
 
-        {/* Nombre PDV + Botón Ir a PDV */}
+        {/* Nombre PDV */}
         {pdvName && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del PDV</label>
@@ -232,19 +213,8 @@ const VisitForm = () => {
               type="text"
               value={pdvName}
               readOnly
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 mb-2"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100"
             />
-            {geo && (
-              <motion.button
-                type="button"
-                onClick={handleOpenMaps}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-xl font-medium"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Map className="w-5 h-5" /> Ir a PDV
-              </motion.button>
-            )}
           </div>
         )}
 
