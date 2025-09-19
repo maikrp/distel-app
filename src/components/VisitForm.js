@@ -53,7 +53,7 @@ const VisitForm = () => {
         const { data, error } = await supabase
           .from('tae')
           .select('pdv')
-          .eq('mdn', mdnCode.padStart(8, '0')) // 👈 ya garantizado como texto de 8 dígitos
+          .ilike('mdn', `%${mdnCode}%`) // 👈 ya garantizado como texto de 8 dígitos
           .limit(1)
           .single();
 
